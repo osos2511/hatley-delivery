@@ -1,0 +1,213 @@
+// import 'package:flutter/material.dart';
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:collection/collection.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:hatley/core/colors_manager.dart';
+// import 'package:hatley/presentation/cubit/tracking_cubit/tracking_state.dart';
+// import 'package:hatley/data/model/traking_response.dart';
+// import '../../../../cubit/tracking_cubit/tracking_cubit.dart';
+// import '../../helper/tracking_order_helper.dart';
+//
+// class TrackOrderWidget extends StatefulWidget {
+//   final int? orderId;
+//   final VoidCallback? onRatePressed;
+//   const TrackOrderWidget({super.key, this.orderId, this.onRatePressed});
+//   @override
+//   State<TrackOrderWidget> createState() => _TrackOrderWidgetState();
+// }
+//
+// class _TrackOrderWidgetState extends State<TrackOrderWidget> {
+//   @override
+//   void initState() {
+//     super.initState();
+//     print("TrackOrderWidget initialized with orderId: ${widget.orderId}");
+//   }
+//
+//   @override
+//   void didChangeDependencies() {
+//     super.didChangeDependencies();
+//   }
+//
+//   @override
+//   void dispose() {
+//     super.dispose();
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocBuilder<TrackingCubit, TrackingState>(
+//       builder: (context, state) {
+//         if (state is TrackingLoaded) {
+//           final TrakingResponse? relevantOrder = state.trackingData
+//               .firstWhereOrNull((order) => order.orderId == widget.orderId);
+//           if (relevantOrder == null) {
+//             return Center(
+//               child: Text(
+//                 "Order ID ${widget.orderId ?? 'undefined'} data not found.",
+//               ),
+//             );
+//           }
+//
+//           final int currentStepIndex = mapStatusToUiStepIndex(
+//             relevantOrder.status,
+//           );
+//           final OrderStatus currentOrderStatusEnum = getOrderStatusEnum(
+//             relevantOrder.status,
+//           );
+//
+//           return Card(
+//             margin: EdgeInsets.zero,
+//             elevation: 4,
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(12),
+//             ),
+//             child: Padding(
+//               padding: const EdgeInsets.all(16),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Center(child: Image.asset('assets/follow.png', height: 100)),
+//                   const SizedBox(height: 16),
+//                   Text(
+//                     'Order ID: ${relevantOrder.orderId}',
+//                     style: TextStyle(
+//                       color: Colors.green[700],
+//                       fontWeight: FontWeight.bold,
+//                       fontSize: 18,
+//                     ),
+//                   ),
+//                   const SizedBox(height: 4),
+//                   Text(
+//                     'Date: ${relevantOrder.orderTime.toLocal().toString().split('.')[0]}',
+//                     style: const TextStyle(fontSize: 14),
+//                   ),
+//                   const SizedBox(height: 8),
+//                   Text(
+//                     'From: ${relevantOrder.zoneFrom}, ${relevantOrder.cityFrom}, ${relevantOrder.detailesAddressFrom}',
+//                     style: const TextStyle(
+//                       fontWeight: FontWeight.bold,
+//                       fontSize: 14,
+//                     ),
+//                   ),
+//                   Text(
+//                     'To: ${relevantOrder.zoneTo}, ${relevantOrder.cityTo}, ${relevantOrder.detailesAddressTo}',
+//                     style: const TextStyle(
+//                       fontWeight: FontWeight.bold,
+//                       fontSize: 14,
+//                     ),
+//                   ),
+//                   const SizedBox(height: 8),
+//                   Align(
+//                     alignment: Alignment.centerRight,
+//                     child: Text(
+//                       getStatusDisplayText(currentOrderStatusEnum),
+//                       style: TextStyle(
+//                         color: getStatusColor(currentOrderStatusEnum),
+//                         fontWeight: FontWeight.bold,
+//                         fontSize: 16,
+//                       ),
+//                     ),
+//                   ),
+//                   const SizedBox(height: 24),
+//                   SizedBox(
+//                     height: 100,
+//                     child: Row(
+//                       children: List.generate(uiTrackingSteps.length, (
+//                         stepIdx,
+//                       ) {
+//                         final bool isActive =
+//                             currentStepIndex >= 0 &&
+//                             stepIdx <= currentStepIndex;
+//                         final bool isLastStep =
+//                             stepIdx == uiTrackingSteps.length - 1;
+//
+//                         return Expanded(
+//                           child: Column(
+//                             children: [
+//                               Row(
+//                                 children: [
+//                                   if (stepIdx != 0)
+//                                     Expanded(
+//                                       child: Container(
+//                                         height: 3,
+//                                         color:
+//                                             (stepIdx <= currentStepIndex)
+//                                                 ? ColorsManager.primaryColorApp
+//                                                 : Colors.grey,
+//                                       ),
+//                                     ),
+//                                   Container(
+//                                     width: 30.w,
+//                                     height: 30.h,
+//                                     decoration: BoxDecoration(
+//                                       color:
+//                                           isActive ? ColorsManager.primaryColorApp : Colors.grey,
+//                                       shape: BoxShape.circle,
+//                                     ),
+//                                     child: Icon(
+//                                       isActive
+//                                           ? Icons.check
+//                                           : Icons.circle_outlined,
+//                                       size: 18,
+//                                       color: Colors.white,
+//                                     ),
+//                                   ),
+//                                   if (!isLastStep)
+//                                     Expanded(
+//                                       child: Container(
+//                                         height: 3.h,
+//                                         color:
+//                                             (stepIdx < currentStepIndex)
+//                                                 ? ColorsManager.primaryColorApp
+//                                                 : Colors.grey,
+//                                       ),
+//                                     ),
+//                                 ],
+//                               ),
+//                               const SizedBox(height: 8),
+//                               Text(
+//                                 uiTrackingSteps[stepIdx],
+//                                 textAlign: TextAlign.center,
+//                                 style: TextStyle(
+//                                   fontSize: 12,
+//                                   fontWeight: FontWeight.w600,
+//                                   color:
+//                                       isActive
+//                                           ? Colors.green[900]
+//                                           : Colors.grey[700],
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                         );
+//                       }),
+//                     ),
+//                   ),
+//                   const SizedBox(height: 24),
+//                   Center(
+//                     child: ElevatedButton(
+//                       style: ElevatedButton.styleFrom(
+//                         backgroundColor: ColorsManager.buttonColorApp,
+//                         foregroundColor: Colors.white,
+//                         minimumSize: Size(50, 40),
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius: BorderRadiusGeometry.circular(8),
+//                         ),
+//                       ),
+//                       onPressed:
+//                           (relevantOrder.status == 3)
+//                               ? widget.onRatePressed
+//                               : null,
+//                       child: const Text("Rate"),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           );
+//         }
+//         return const SizedBox.shrink();
+//       },
+//     );
+//   }
+// }
