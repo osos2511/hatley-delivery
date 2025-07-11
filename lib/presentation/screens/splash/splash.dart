@@ -65,7 +65,7 @@ class _SplashState extends State<Splash> {
             isRepeatingAnimation: false,
             animatedTexts: [
               TyperAnimatedText(
-                'Get Anything',
+                'We bring everything closer to you',
                 textStyle: GoogleFonts.exo2(
                   color: ColorsManager.primaryColorApp,
                   fontSize: responsiveFontSize(context, 30),
@@ -75,7 +75,6 @@ class _SplashState extends State<Splash> {
               ),
             ],
             onTap: () {
-              print("💬 Get Anything tapped");
             },
           ),
           const Spacer(),
