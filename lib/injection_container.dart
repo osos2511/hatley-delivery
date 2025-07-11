@@ -1,8 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hatley_delivery/data/datasources/get_related_orders_datasource.dart';
+import 'package:hatley_delivery/data/repo_impl/order_repo_impl.dart';
+import 'package:hatley_delivery/domain/repo/order_repo.dart';
+import 'package:hatley_delivery/domain/usecases/get_related_orders_usecase.dart';
 import 'package:hatley_delivery/presentation/cubit/auth_cubit/auth_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/change_pass_cubit/change_pass_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/governorate_cubit/governorate_cubit.dart';
+import 'package:hatley_delivery/presentation/cubit/order_cubit/getAllOrders_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/profile_cubit/profile_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/register_cubit/register_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/statistics_cubit/statistics_cubit.dart';
@@ -67,21 +72,15 @@ Future<void> setupGetIt() async {
   sl.registerLazySingleton<ProfileDatasource>(
         () => ProfileDataSourceImpl(dio: sl()),
   );
-  //
-  // sl.registerLazySingleton<AddOrderRemoteDatasource>(
-  //   () => AddOrderDatasourceImpl(dio: sl()),
+  sl.registerLazySingleton<GetRelatedOrdersDataSource>(
+    () => GetRelatedOrdersDataSourceImpl(dio: sl()),
+  );
+
+  // sl.registerLazySingleton<OfferDataSource>(
+  //   () => OfferDataSourceImpl(dio: sl()),
   // );
   // sl.registerLazySingleton<GetAllOrdersRemoteDataSource>(
   //   () => GetallOrdersDatasourceImpl(dio: sl()),
-  // );
-  // sl.registerLazySingleton<DeleteOrderRemoteDataSource>(
-  //   () => DeleteOrderDatasourceImpl(dio: sl()),
-  // );
-  // sl.registerLazySingleton<EditOrderRemoteDataSource>(
-  //   () => EditOrderDatasourceImpl(dio: sl()),
-  // );
-  // sl.registerLazySingleton<OfferDataSource>(
-  //   () => OfferDataSourceImpl(dio: sl()),
   // );
 
   // sl.registerLazySingleton<DeliveriesDataSource>(
@@ -94,6 +93,8 @@ Future<void> setupGetIt() async {
   sl.registerLazySingleton<UserRepo>(() => UserRepoImpl(sl(), sl(), sl()));
    sl.registerLazySingleton<LocationRepo>(() => LocationRepoImpl(sl(), sl()));
    sl.registerLazySingleton<ProfileRepo>(() => ProfileRepoImpl(sl()));
+   sl.registerLazySingleton<OrderRepo>(() => OrderRepoImpl(sl()));
+
 
   // sl.registerLazySingleton<OrderRepo>(
   //   () => OrderRepoImpl(sl(), sl(), sl(), sl()),
@@ -114,11 +115,9 @@ Future<void> setupGetIt() async {
   sl.registerLazySingleton(() => ChangePasswordUsecase(sl()));
   sl.registerLazySingleton(() => UpdateprofileUsecase(sl()));
   sl.registerLazySingleton(() => GetallStatisticsUsecase(sl()));
+  sl.registerLazySingleton(() => GetRelatedOrdersUseCase(sl()));
 
-  // sl.registerLazySingleton(() => AddOrderUseCase(sl()));
   // sl.registerLazySingleton(() => GetallordersUseCase(sl()));
-  // sl.registerLazySingleton(() => DeleteOrderUsecase(sl()));
-  // sl.registerLazySingleton(() => EditOrderUseCase(sl()));
   // sl.registerLazySingleton(() => AcceptOfferUseCase(sl()));
   // sl.registerLazySingleton(() => DeclineofferUsecase(sl()));
 
@@ -140,12 +139,11 @@ Future<void> setupGetIt() async {
    );
    sl.registerFactory(() => ChangePassCubit(sl()));
     sl.registerFactory(() => StatisticsCubit(sl()));
+    sl.registerFactory(() => GetRelatedOrdersCubit(sl()));
 
-  //  sl.registerFactory(() => AddOrderCubit(sl()));
+
  //  sl.registerFactory(() => GetAllOrdersCubit(sl()));
- //  sl.registerFactory(() => MakeOrderCubit());
- //  sl.registerFactory(() => DeleteOrderCubit(sl()));
- //  sl.registerFactory(() => EditOrderCubit(sl()));
+
  //  sl.registerFactory(() => OfferCubit(sl(), sl()));
  //  sl.registerFactory(() => TrackingCubit(trakingApiManager: sl()));
  //  sl.registerLazySingleton<TrakingApiManager>(

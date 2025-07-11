@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hatley_delivery/presentation/cubit/order_cubit/getAllOrders_cubit.dart';
+import 'package:hatley_delivery/presentation/cubit/order_cubit/order_state.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/profile.dart';
-
+import 'package:hatley_delivery/presentation/screens/home/home_drawer/widgets/custom_order.dart';
 import '../../../../../core/colors_manager.dart';
 import '../../../../../core/missing_fields_dialog.dart';
 import '../../../../../core/routes_manager.dart';
+import '../../../../../injection_container.dart';
 import '../../../../cubit/auth_cubit/auth_cubit.dart';
 import '../../../../cubit/auth_cubit/auth_state.dart';
 import '../../../../cubit/navigation_cubit.dart';
-import '../../../auth/widgets/custom_button.dart';
 import '../widgets/custom_drawer.dart';
 import 'about_us.dart';
 import 'our_team.dart';
@@ -67,6 +69,8 @@ class _HomeState extends State<Home> {
             }
           },
         ),
+
+
         // BlocListener<TrackingCubit, TrackingState>(
         //   listenWhen: (previous, current) => current is TrackingError,
         //   listener: (context, state) {
@@ -128,6 +132,7 @@ class _HomeState extends State<Home> {
         ),
         drawer: const CustomDrawer(),
         body: BlocBuilder<NavigationCubit, int>(
+
           builder: (context, state) {
             switch (state) {
               case 1:
@@ -147,47 +152,35 @@ class _HomeState extends State<Home> {
               case 7:
                 return  Profile();
               default:
-                return SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 20.h,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Hatley – The easiest way to get your orders delivered',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 22.sp,
-                          color: ColorsManager.white70,
-
-                        ),
-                      ),
-                      SizedBox(height: 16.h),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12.r),
-                        child: Image.asset(
-                          height: 300,
-                          'assets/delivery.jpg',
-                          width: double.infinity,
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                      SizedBox(height: 24.h),
-                      Center(
-                        child: CustomButton(
-                          onPressed: () {
-                            Navigator.of(
-                              context,
-                            ).pushNamed(RoutesManager.makeOrdersRoute);
-                          },
-                          text: 'Make Order Now',
-                        ),
-                      ),
-                    ],
+                return BlocProvider<GetRelatedOrdersCubit>(
+                  create: (context) => sl<GetRelatedOrdersCubit>()..getRelatedOrders(),
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await context.read<GetRelatedOrdersCubit>().getRelatedOrders();
+                    },
+                    child: BlocBuilder<GetRelatedOrdersCubit, OrderState>(
+                      builder: (context, state) {
+                        if (state is OrderLoading) {
+                          return const Center(child: CircularProgressIndicator());
+                        } else if (state is GetAllOrdersSuccess) {
+                          return ListView.builder(
+                            itemCount: state.orders.length,
+                            itemBuilder: (context, index) {
+                              final order = state.orders[index];
+                              return CustomOrderWidget(order: order);
+                            },
+                          );
+                        } else if (state is OrderFailure) {
+                          return Center(child: Text('Failed to load orders'));
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
                   ),
                 );
+
+
             }
           },
         ),
