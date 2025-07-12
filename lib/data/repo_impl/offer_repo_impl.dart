@@ -10,7 +10,7 @@ class OfferRepoImpl implements OfferRepo {
   OfferRepoImpl({required this.getOfferDatasource});
 
   @override
-  Future<Either<Failure, OfferEntity>> getOffer(String orderId) async {
+  Future<Either<Failure, OfferEntity>> getOffer(num orderId) async {
     try {
       final result = await getOfferDatasource.getOffer(orderId);
       final offerEntity = result.toEntity();

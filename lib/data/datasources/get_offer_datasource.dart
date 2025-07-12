@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:hatley_delivery/data/model/offer_response.dart';
 
 abstract class GetOfferDatasource {
-  Future<OfferResponse> getOffer(String orderId);
+  Future<OfferResponse> getOffer(num orderId);
 }
 
 class GetOfferDatasourceImpl implements GetOfferDatasource {
@@ -10,7 +10,7 @@ class GetOfferDatasourceImpl implements GetOfferDatasource {
   GetOfferDatasourceImpl({required this.dio});
 
   @override
-  Future<OfferResponse> getOffer(String orderId) async {
+  Future<OfferResponse> getOffer(num orderId) async {
     try {
       final response = await dio.get(
         'offer',

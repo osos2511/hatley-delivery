@@ -6,7 +6,7 @@ import '../../core/error/failure.dart';
 class GetOfferUsecase {
   OfferRepo offerRepo;
   GetOfferUsecase(this.offerRepo);
-  Future<Either<Failure, OfferEntity>> call(String orderId) {
+  Future<Either<Failure, OfferEntity>> call(num orderId) {
     return offerRepo.getOffer(orderId);
   }
 }

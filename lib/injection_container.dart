@@ -12,6 +12,7 @@ import 'package:hatley_delivery/presentation/cubit/auth_cubit/auth_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/change_pass_cubit/change_pass_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/governorate_cubit/governorate_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/order_cubit/getAllOrders_cubit.dart';
+import 'package:hatley_delivery/presentation/cubit/offer_cubit/offer_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/profile_cubit/profile_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/register_cubit/register_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/statistics_cubit/statistics_cubit.dart';
@@ -149,7 +150,8 @@ Future<void> setupGetIt() async {
   );
   sl.registerFactory(() => ChangePassCubit(sl()));
   sl.registerFactory(() => StatisticsCubit(sl()));
-  sl.registerFactory(() => GetRelatedOrdersCubit(sl(), sl()));
+  sl.registerFactory(() => GetRelatedOrdersCubit(sl()));
+  sl.registerFactory(() => OfferCubit(sl()));
 
   //  sl.registerFactory(() => GetAllOrdersCubit(sl()));
 

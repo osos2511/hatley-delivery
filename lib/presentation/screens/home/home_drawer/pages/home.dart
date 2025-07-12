@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hatley_delivery/presentation/cubit/order_cubit/getAllOrders_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/order_cubit/order_state.dart';
+import 'package:hatley_delivery/domain/usecases/get_related_orders_usecase.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/profile.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/widgets/custom_order.dart';
 import '../../../../../core/colors_manager.dart';
@@ -23,7 +24,9 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<GetRelatedOrdersCubit>(
-      create: (context) => sl<GetRelatedOrdersCubit>()..getRelatedOrders(),
+      create: (context) =>
+          GetRelatedOrdersCubit(sl<GetRelatedOrdersUseCase>())
+            ..getRelatedOrders(),
       child: const HomeContent(),
     );
   }

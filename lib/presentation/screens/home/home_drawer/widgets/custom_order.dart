@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hatley_delivery/presentation/cubit/offer_cubit/offer_cubit.dart';
+import 'package:hatley_delivery/presentation/cubit/offer_cubit/offer_state.dart';
+import 'package:hatley_delivery/domain/usecases/get_offer_usecase.dart';
+import 'package:hatley_delivery/presentation/screens/home/home_drawer/widgets/custom_order_button.dart';
 import 'package:intl/intl.dart';
 import '../../../../../core/colors_manager.dart';
 import '../../../../../domain/entities/related_orders_entity.dart';
+import '../../../../../injection_container.dart';
 
 class CustomOrderWidget extends StatefulWidget {
   const CustomOrderWidget({super.key, required this.order});
@@ -11,72 +17,109 @@ class CustomOrderWidget extends StatefulWidget {
 }
 
 class _CustomOrderWidgetState extends State<CustomOrderWidget> {
-  int offerPrice = 50; // السعر الابتدائي
+  num? offerPrice;
+  num? originalPrice; // لحفظ القيمة الأصلية
 
-  void _showOfferDialog() {
+  void _showOfferDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // للتحكم في الطول
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Set Your Offer Price",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: ColorsManager.primaryColorApp,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        if (offerPrice > 5) offerPrice -= 5;
-                      });
-                    },
-                    icon: const Icon(Icons.remove_circle_outline),
-                  ),
-                  Text(
-                    "EGP $offerPrice",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+        return BlocProvider<OfferCubit>(
+          create: (context) =>
+              OfferCubit(sl<GetOfferUsecase>())..getOffer(widget.order.orderId),
+          child: Container(
+            // للتحكم في الطول - ممكن تعدل القيم
+            height:
+                MediaQuery.of(context).size.height *
+                0.22, // 40% من ارتفاع الشاشة
+            padding: const EdgeInsets.all(16),
+            child: BlocBuilder<OfferCubit, OfferState>(
+              builder: (context, state) {
+                if (state is OfferLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: ColorsManager.buttonColorApp,
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        offerPrice += 5;
-                      });
-                    },
-                    icon: const Icon(Icons.add_circle_outline),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Offer sent: EGP $offerPrice")),
                   );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorsManager.buttonColorApp,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text("Send Offer"),
-              ),
-            ],
+                } else if (state is GetOfferSuccess) {
+                  // حفظ القيمة الأصلية أول مرة فقط
+                  originalPrice ??= state.offer.price;
+                  // إعادة تعيين الـ offerPrice للقيمة الأصلية كل مرة
+                  offerPrice = originalPrice;
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Set Your Offer Price",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: ColorsManager.primaryColorApp,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    if (offerPrice != null && offerPrice! > 5) {
+                                      offerPrice = offerPrice! - 5;
+                                    }
+                                  });
+                                },
+                                icon: const Icon(Icons.remove_circle_outline),
+                              ),
+                              Text(
+                                "EGP ${offerPrice ?? 50}",
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    if (offerPrice != null) {
+                                      offerPrice = offerPrice! + 5;
+                                    }
+                                  });
+                                },
+                                icon: const Icon(Icons.add_circle_outline),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          CustomOrderButton(
+                            text: "Send Offer",
+                            onPressed: () {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Offer sent: EGP ${offerPrice ?? 50}",
+                                  ),
+                                ),
+                              );
+                            },
+                            backgroundColor: ColorsManager.buttonColorApp,
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                } else {
+                  return const Center(child: Text("No offer available"));
+                }
+              },
+            ),
           ),
         );
       },
@@ -198,21 +241,12 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
             ),
             const SizedBox(height: 16),
             Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorsManager.buttonColorApp,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(120, 45),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 2,
-                ),
-                onPressed: _showOfferDialog,
-                child: const Text(
-                  "Make Offer",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                ),
+              child: CustomOrderButton(
+                backgroundColor: ColorsManager.buttonColorApp,
+                onPressed: () {
+                  _showOfferDialog(context);
+                },
+                text: "Make Offer",
               ),
             ),
           ],
