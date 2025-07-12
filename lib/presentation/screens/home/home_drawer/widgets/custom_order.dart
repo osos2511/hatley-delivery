@@ -4,8 +4,8 @@ import '../../../../../core/colors_manager.dart';
 import '../../../../../domain/entities/related_orders_entity.dart';
 
 class CustomOrderWidget extends StatefulWidget {
-   const CustomOrderWidget({super.key,required this.order});
-   final RelatedOrdersEntity order;
+  const CustomOrderWidget({super.key, required this.order});
+  final RelatedOrdersEntity order;
   @override
   State<CustomOrderWidget> createState() => _CustomOrderWidgetState();
 }
@@ -92,9 +92,7 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 6,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -166,15 +164,16 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.location_on, size: 18, color: ColorsManager.primaryColorApp),
+                const Icon(
+                  Icons.location_on,
+                  size: 18,
+                  color: ColorsManager.primaryColorApp,
+                ),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     "From: ${widget.order.orderZoneFrom}, ${widget.order.orderCityFrom}, ${widget.order.detailesAddressFrom}",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade800,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
                   ),
                 ),
               ],
@@ -183,15 +182,16 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.flag, size: 18, color: ColorsManager.primaryColorApp),
+                const Icon(
+                  Icons.flag,
+                  size: 18,
+                  color: ColorsManager.primaryColorApp,
+                ),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     "To: ${widget.order.orderZoneTo}, ${widget.order.orderCityTo}, ${widget.order.detailesAddressTo}",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade800,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
                   ),
                 ),
               ],
@@ -219,6 +219,5 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
         ),
       ),
     );
-
   }
 }

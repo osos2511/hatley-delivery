@@ -17,14 +17,26 @@ import '../widgets/custom_drawer.dart';
 import 'about_us.dart';
 import 'our_team.dart';
 
-class Home extends StatefulWidget {
+class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  Widget build(BuildContext context) {
+    return BlocProvider<GetRelatedOrdersCubit>(
+      create: (context) => sl<GetRelatedOrdersCubit>()..getRelatedOrders(),
+      child: const HomeContent(),
+    );
+  }
 }
 
-class _HomeState extends State<Home> {
+class HomeContent extends StatefulWidget {
+  const HomeContent({super.key});
+
+  @override
+  State<HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
   bool _hasCheckedToken = false;
 
   @override
@@ -70,7 +82,6 @@ class _HomeState extends State<Home> {
           },
         ),
 
-
         // BlocListener<TrackingCubit, TrackingState>(
         //   listenWhen: (previous, current) => current is TrackingError,
         //   listener: (context, state) {
@@ -81,7 +92,6 @@ class _HomeState extends State<Home> {
         //     }
         //   },
         // ),
-
       ],
       child: Scaffold(
         appBar: PreferredSize(
@@ -132,15 +142,14 @@ class _HomeState extends State<Home> {
         ),
         drawer: const CustomDrawer(),
         body: BlocBuilder<NavigationCubit, int>(
-
           builder: (context, state) {
             switch (state) {
               case 1:
                 return const AboutUs();
-                //return const AllTrackingOrdersScreen();
+              //return const AllTrackingOrdersScreen();
               case 2:
                 return const OurTeam();
-                //return const ContactUs();
+              //return const ContactUs();
               // case 3:
               //   return const AboutUs();
               // case 3:
@@ -150,37 +159,36 @@ class _HomeState extends State<Home> {
               // case 6:
               //   return Deliveries();
               case 7:
-                return  Profile();
+                return Profile();
               default:
-                return BlocProvider<GetRelatedOrdersCubit>(
-                  create: (context) => sl<GetRelatedOrdersCubit>()..getRelatedOrders(),
-                  child: RefreshIndicator(
-                    onRefresh: () async {
-                      await context.read<GetRelatedOrdersCubit>().getRelatedOrders();
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    await context
+                        .read<GetRelatedOrdersCubit>()
+                        .getRelatedOrders();
+                  },
+                  child: BlocBuilder<GetRelatedOrdersCubit, OrderState>(
+                    builder: (context, state) {
+                      if (state is OrderLoading) {
+                        return Center(
+                          child: CircularProgressIndicator(color: Colors.white),
+                        );
+                      } else if (state is GetAllOrdersSuccess) {
+                        return ListView.builder(
+                          itemCount: state.orders.length,
+                          itemBuilder: (context, index) {
+                            final order = state.orders[index];
+                            return CustomOrderWidget(order: order);
+                          },
+                        );
+                      } else if (state is OrderFailure) {
+                        return Center(child: Text('Failed to load orders'));
+                      } else {
+                        return const SizedBox.shrink();
+                      }
                     },
-                    child: BlocBuilder<GetRelatedOrdersCubit, OrderState>(
-                      builder: (context, state) {
-                        if (state is OrderLoading) {
-                          return const Center(child: CircularProgressIndicator());
-                        } else if (state is GetAllOrdersSuccess) {
-                          return ListView.builder(
-                            itemCount: state.orders.length,
-                            itemBuilder: (context, index) {
-                              final order = state.orders[index];
-                              return CustomOrderWidget(order: order);
-                            },
-                          );
-                        } else if (state is OrderFailure) {
-                          return Center(child: Text('Failed to load orders'));
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    ),
                   ),
                 );
-
-
             }
           },
         ),

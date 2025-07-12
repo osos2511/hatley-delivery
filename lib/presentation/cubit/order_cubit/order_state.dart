@@ -1,4 +1,5 @@
 import 'package:hatley_delivery/domain/entities/related_orders_entity.dart';
+import 'package:hatley_delivery/domain/entities/offer_entity.dart';
 
 abstract class OrderState {}
 
@@ -16,4 +17,9 @@ class GetAllOrdersSuccess extends OrderState {
 class OrderFailure extends OrderState {
   final String error;
   OrderFailure(this.error);
+}
+
+class GetOfferSuccess extends OrderState {
+  final OfferEntity offer;
+  GetOfferSuccess(this.offer);
 }
