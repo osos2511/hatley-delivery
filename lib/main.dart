@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hatley_delivery/presentation/cubit/auth_cubit/auth_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/navigation_cubit.dart';
+import 'package:hatley_delivery/presentation/cubit/profile_cubit/profile_cubit.dart';
 // import 'package:hatley/core/colors_manager.dart';
 // import 'package:hatley/presentation/cubit/feedback_cubit/feedback_cubit.dart';
 // import 'package:hatley/presentation/cubit/auth_cubit/auth_cubit.dart';
@@ -39,9 +40,12 @@ void main() async {
     initialRoute = RoutesManager.splashRoute;
   }
 
-  runApp(DevicePreview(
+  runApp(
+    DevicePreview(
       enabled: true,
-      builder:(context) =>  MyApp(initialRoute: initialRoute)));
+      builder: (context) => MyApp(initialRoute: initialRoute),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -62,12 +66,21 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (context) => sl<AuthCubit>()),
           //BlocProvider(create: (context) => sl<TrackingCubit>()),
           //BlocProvider(create: (context) => sl<FeedbackCubit>()),
+          BlocProvider(
+            create: (context) => ProfileCubit(
+              getProfileInfoUseCase: sl(),
+              uploadProfileImgUsecase: sl(),
+              updateProfileUsecase: sl(),
+            )..getProfileInfo(),
+          ),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           onGenerateRoute: RoutesManager.router,
           initialRoute: initialRoute,
-          theme: ThemeData(scaffoldBackgroundColor: ColorsManager.primaryColorApp),
+          theme: ThemeData(
+            scaffoldBackgroundColor: ColorsManager.primaryColorApp,
+          ),
         ),
       ),
     );

@@ -8,6 +8,7 @@ import 'package:hatley_delivery/domain/repo/offer_repo.dart';
 import 'package:hatley_delivery/domain/repo/order_repo.dart';
 import 'package:hatley_delivery/domain/usecases/get_offer_usecase.dart';
 import 'package:hatley_delivery/domain/usecases/get_related_orders_usecase.dart';
+import 'package:hatley_delivery/domain/usecases/send_offer_usecase.dart';
 import 'package:hatley_delivery/presentation/cubit/auth_cubit/auth_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/change_pass_cubit/change_pass_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/governorate_cubit/governorate_cubit.dart';
@@ -84,13 +85,6 @@ Future<void> setupGetIt() async {
     () => GetOfferDatasourceImpl(dio: sl()),
   );
 
-  // sl.registerLazySingleton<OfferDataSource>(
-  //   () => OfferDataSourceImpl(dio: sl()),
-  // );
-  // sl.registerLazySingleton<GetAllOrdersRemoteDataSource>(
-  //   () => GetallOrdersDatasourceImpl(dio: sl()),
-  // );
-
   // sl.registerLazySingleton<DeliveriesDataSource>(
   //   () => DeliveriesDataSourceImpl(sl()),
   // );
@@ -106,10 +100,6 @@ Future<void> setupGetIt() async {
     () => OfferRepoImpl(getOfferDatasource: sl()),
   );
 
-  // sl.registerLazySingleton<OrderRepo>(
-  //   () => OrderRepoImpl(sl(), sl(), sl(), sl()),
-  // );
-  // sl.registerLazySingleton<OfferRepo>(() => OfferRepoImpl(sl()));
   // sl.registerLazySingleton<DeliveriesRepo>(() => DeliveriesRepoImpl(sl()));
   // sl.registerLazySingleton<RatingRepo>(() => RatingRepoImpl(sl()));
   // sl.registerLazySingleton<ReviewRepo>(() => ReviewRepoImpl(sl()));
@@ -127,6 +117,7 @@ Future<void> setupGetIt() async {
   sl.registerLazySingleton(() => GetallStatisticsUsecase(sl()));
   sl.registerLazySingleton(() => GetRelatedOrdersUseCase(sl()));
   sl.registerLazySingleton(() => GetOfferUsecase(sl()));
+  sl.registerLazySingleton(() => SendOfferUseCase(sl()));
 
   // sl.registerLazySingleton(() => GetallordersUseCase(sl()));
   // sl.registerLazySingleton(() => AcceptOfferUseCase(sl()));
@@ -151,7 +142,7 @@ Future<void> setupGetIt() async {
   sl.registerFactory(() => ChangePassCubit(sl()));
   sl.registerFactory(() => StatisticsCubit(sl()));
   sl.registerFactory(() => GetRelatedOrdersCubit(sl()));
-  sl.registerFactory(() => OfferCubit(sl()));
+  sl.registerFactory(() => OfferCubit(sl(), sl()));
 
   //  sl.registerFactory(() => GetAllOrdersCubit(sl()));
 

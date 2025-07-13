@@ -17,6 +17,8 @@ import '../../../../cubit/navigation_cubit.dart';
 import '../widgets/custom_drawer.dart';
 import 'about_us.dart';
 import 'our_team.dart';
+import '../../../../cubit/profile_cubit/profile_cubit.dart';
+import '../../../../cubit/profile_cubit/profile_state.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -96,105 +98,121 @@ class _HomeContentState extends State<HomeContent> {
         //   },
         // ),
       ],
-      child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(56.h),
-          child: BlocBuilder<NavigationCubit, int>(
+      child: Column(
+        children: [
+          // BlocBuilder غير مرئي لتفعيل ProfileCubit
+          BlocBuilder<ProfileCubit, ProfileState>(
             builder: (context, state) {
-              String appBarTitle;
-              switch (state) {
-                case 1:
-                  appBarTitle = 'Track Orders'; // الكلمة الإنجليزية
-                  break;
-                case 2:
-                  appBarTitle = 'Contact Us'; // الكلمة الإنجليزية
-                  break;
-                case 3:
-                  appBarTitle = 'About Us'; // الكلمة الإنجليزية
-                  break;
-                case 4:
-                  appBarTitle = 'Our Team'; // الكلمة الإنجليزية
-                  break;
-                case 5:
-                  appBarTitle = 'My Orders'; // الكلمة الإنجليزية
-                  break;
-                case 6:
-                  appBarTitle = 'Deliveries'; // الكلمة الإنجليزية
-                  break;
-                case 7:
-                  appBarTitle = 'Profile'; // الكلمة الإنجليزية
-                  break;
-                default:
-                  appBarTitle = 'Home'; // الكلمة الإنجليزية
-              }
-
-              return AppBar(
-                title: Text(
-                  appBarTitle,
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                centerTitle: true,
-                iconTheme: const IconThemeData(color: Colors.white),
-                backgroundColor: ColorsManager.primaryColorApp,
-              );
+              return const SizedBox.shrink();
             },
           ),
-        ),
-        drawer: const CustomDrawer(),
-        body: BlocBuilder<NavigationCubit, int>(
-          builder: (context, state) {
-            switch (state) {
-              case 1:
-                return const AboutUs();
-              //return const AllTrackingOrdersScreen();
-              case 2:
-                return const OurTeam();
-              //return const ContactUs();
-              // case 3:
-              //   return const AboutUs();
-              // case 3:
-              //   return const OurTeam();
-              // case 5:
-              //   return const MyOrders();
-              // case 6:
-              //   return Deliveries();
-              case 7:
-                return Profile();
-              default:
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    await context
-                        .read<GetRelatedOrdersCubit>()
-                        .getRelatedOrders();
+          Expanded(
+            child: Scaffold(
+              appBar: PreferredSize(
+                preferredSize: Size.fromHeight(56.h),
+                child: BlocBuilder<NavigationCubit, int>(
+                  builder: (context, state) {
+                    String appBarTitle;
+                    switch (state) {
+                      case 1:
+                        appBarTitle = 'Track Orders'; // الكلمة الإنجليزية
+                        break;
+                      case 2:
+                        appBarTitle = 'Contact Us'; // الكلمة الإنجليزية
+                        break;
+                      case 3:
+                        appBarTitle = 'About Us'; // الكلمة الإنجليزية
+                        break;
+                      case 4:
+                        appBarTitle = 'Our Team'; // الكلمة الإنجليزية
+                        break;
+                      case 5:
+                        appBarTitle = 'My Orders'; // الكلمة الإنجليزية
+                        break;
+                      case 6:
+                        appBarTitle = 'Deliveries'; // الكلمة الإنجليزية
+                        break;
+                      case 7:
+                        appBarTitle = 'Profile'; // الكلمة الإنجليزية
+                        break;
+                      default:
+                        appBarTitle = 'Home'; // الكلمة الإنجليزية
+                    }
+
+                    return AppBar(
+                      title: Text(
+                        appBarTitle,
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      centerTitle: true,
+                      iconTheme: const IconThemeData(color: Colors.white),
+                      backgroundColor: ColorsManager.primaryColorApp,
+                    );
                   },
-                  child: BlocBuilder<GetRelatedOrdersCubit, OrderState>(
-                    builder: (context, state) {
-                      if (state is OrderLoading) {
-                        return Center(
-                          child: CircularProgressIndicator(color: Colors.white),
-                        );
-                      } else if (state is GetAllOrdersSuccess) {
-                        return ListView.builder(
-                          itemCount: state.orders.length,
-                          itemBuilder: (context, index) {
-                            final order = state.orders[index];
-                            return CustomOrderWidget(order: order);
+                ),
+              ),
+              drawer: const CustomDrawer(),
+              body: BlocBuilder<NavigationCubit, int>(
+                builder: (context, state) {
+                  switch (state) {
+                    case 1:
+                      return const AboutUs();
+                    //return const AllTrackingOrdersScreen();
+                    case 2:
+                      return const OurTeam();
+                    //return const ContactUs();
+                    // case 3:
+                    //   return const AboutUs();
+                    // case 3:
+                    //   return const OurTeam();
+                    // case 5:
+                    //   return const MyOrders();
+                    // case 6:
+                    //   return Deliveries();
+                    case 7:
+                      return Profile();
+                    default:
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          await context
+                              .read<GetRelatedOrdersCubit>()
+                              .getRelatedOrders();
+                        },
+                        child: BlocBuilder<GetRelatedOrdersCubit, OrderState>(
+                          builder: (context, state) {
+                            if (state is OrderLoading) {
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              );
+                            } else if (state is GetAllOrdersSuccess) {
+                              return ListView.builder(
+                                itemCount: state.orders.length,
+                                itemBuilder: (context, index) {
+                                  final order = state.orders[index];
+                                  return CustomOrderWidget(order: order);
+                                },
+                              );
+                            } else if (state is OrderFailure) {
+                              return Center(
+                                child: Text('Failed to load orders'),
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
                           },
-                        );
-                      } else if (state is OrderFailure) {
-                        return Center(child: Text('Failed to load orders'));
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                );
-            }
-          },
-        ),
+                        ),
+                      );
+                  }
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

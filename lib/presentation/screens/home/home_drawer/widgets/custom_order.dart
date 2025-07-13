@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hatley_delivery/presentation/cubit/offer_cubit/offer_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/offer_cubit/offer_state.dart';
 import 'package:hatley_delivery/domain/usecases/get_offer_usecase.dart';
+import 'package:hatley_delivery/presentation/screens/auth/widgets/custom_toast.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/widgets/custom_order_button.dart';
 import 'package:intl/intl.dart';
 import '../../../../../core/colors_manager.dart';
 import '../../../../../domain/entities/related_orders_entity.dart';
 import '../../../../../injection_container.dart';
+import 'package:hatley_delivery/presentation/cubit/profile_cubit/profile_cubit.dart';
+import 'package:hatley_delivery/domain/usecases/send_offer_usecase.dart';
 
 class CustomOrderWidget extends StatefulWidget {
   const CustomOrderWidget({super.key, required this.order});
@@ -19,8 +23,9 @@ class CustomOrderWidget extends StatefulWidget {
 class _CustomOrderWidgetState extends State<CustomOrderWidget> {
   num? offerPrice;
   num? originalPrice; // لحفظ القيمة الأصلية
+  num? localOfferPrice; // متغير السعر المستخدم في البوتوم شيت
 
-  void _showOfferDialog(BuildContext context) {
+  void _showOfferDialog(BuildContext context, String? email) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true, // للتحكم في الطول
@@ -30,96 +35,117 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
       builder: (context) {
         return BlocProvider<OfferCubit>(
           create: (context) =>
-              OfferCubit(sl<GetOfferUsecase>())..getOffer(widget.order.orderId),
-          child: Container(
-            // للتحكم في الطول - ممكن تعدل القيم
-            height:
-                MediaQuery.of(context).size.height *
-                0.22, // 40% من ارتفاع الشاشة
-            padding: const EdgeInsets.all(16),
-            child: BlocBuilder<OfferCubit, OfferState>(
-              builder: (context, state) {
-                if (state is OfferLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: ColorsManager.buttonColorApp,
-                    ),
-                  );
-                } else if (state is GetOfferSuccess) {
-                  // حفظ القيمة الأصلية أول مرة فقط
-                  originalPrice ??= state.offer.price;
-                  // إعادة تعيين الـ offerPrice للقيمة الأصلية كل مرة
-                  offerPrice = originalPrice;
-                  return StatefulBuilder(
-                    builder: (context, setState) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "Set Your Offer Price",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: ColorsManager.primaryColorApp,
+              OfferCubit(sl<GetOfferUsecase>(), sl<SendOfferUseCase>())
+                ..getOffer(widget.order.orderId),
+          child: BlocConsumer<OfferCubit, OfferState>(
+            listener: (context, state) {
+              if (state is SendOfferSuccess) {
+                Navigator.pop(context);
+                CustomToast.show(message: 'Sent offer Successfulyy');
+              } else if (state is SendOfferFailure) {
+                Navigator.pop(context);
+                CustomToast.show(message: 'Failed to send offer');
+              }
+            },
+            builder: (context, state) {
+              if (state is OfferLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: ColorsManager.buttonColorApp,
+                  ),
+                );
+              } else if (state is GetOfferSuccess) {
+                // تهيئة localOfferPrice مرة واحدة فقط
+                if (localOfferPrice == null) {
+                  localOfferPrice = state.offer.price ?? 50;
+                }
+                return StatefulBuilder(
+                  builder: (context, setState) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Set Your Offer Price",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: ColorsManager.primaryColorApp,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  if (localOfferPrice! > 5) {
+                                    localOfferPrice = localOfferPrice! - 5;
+                                  }
+                                });
+                              },
+                              icon: const Icon(Icons.remove_circle_outline),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    if (offerPrice != null && offerPrice! > 5) {
-                                      offerPrice = offerPrice! - 5;
-                                    }
-                                  });
-                                },
-                                icon: const Icon(Icons.remove_circle_outline),
+                            Text(
+                              "EGP $localOfferPrice",
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
                               ),
-                              Text(
-                                "EGP ${offerPrice ?? 50}",
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    if (offerPrice != null) {
-                                      offerPrice = offerPrice! + 5;
-                                    }
-                                  });
-                                },
-                                icon: const Icon(Icons.add_circle_outline),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          CustomOrderButton(
-                            text: "Send Offer",
-                            onPressed: () {
-                              Navigator.pop(context);
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  localOfferPrice = localOfferPrice! + 5;
+                                });
+                              },
+                              icon: const Icon(Icons.add_circle_outline),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        CustomOrderButton(
+                          text: "Send Offer",
+                          onPressed: () async {
+                            print('Send Offer Pressed');
+                            print('Email: $email');
+                            if (email != null && widget.order.orderId != null) {
+                              BlocProvider.of<OfferCubit>(
+                                context,
+                                listen: false,
+                              ).sendOffer(
+                                orderId: widget.order.orderId.toInt(),
+                                value: localOfferPrice ?? 50,
+                                email: email,
+                              );
+                            } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
+                                const SnackBar(
                                   content: Text(
-                                    "Offer sent: EGP ${offerPrice ?? 50}",
+                                    "Email or Order ID is missing!",
                                   ),
                                 ),
                               );
-                            },
-                            backgroundColor: ColorsManager.buttonColorApp,
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                } else {
-                  return const Center(child: Text("No offer available"));
-                }
-              },
-            ),
+                            }
+                          },
+                          backgroundColor: ColorsManager.buttonColorApp,
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } else if (state is SendOfferLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: ColorsManager.buttonColorApp,
+                  ),
+                );
+              } else if (state is OfferFailure) {
+                return const Center(child: Text("No offer available"));
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
           ),
         );
       },
@@ -131,6 +157,9 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
     final parsedDateTime = DateTime.parse(widget.order.orderTime);
     final formattedDate = DateFormat('dd MMM yyyy').format(parsedDateTime);
     final formattedTime = DateFormat('hh:mm a').format(parsedDateTime);
+
+    // هات الإيميل من ProfileCubit هنا (context الأعلى)
+    final email = context.read<ProfileCubit>().state.profile?.email;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -244,7 +273,7 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
               child: CustomOrderButton(
                 backgroundColor: ColorsManager.buttonColorApp,
                 onPressed: () {
-                  _showOfferDialog(context);
+                  _showOfferDialog(context, email);
                 },
                 text: "Make Offer",
               ),

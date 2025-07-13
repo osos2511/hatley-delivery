@@ -2,7 +2,9 @@ import 'package:dartz/dartz.dart';
 import 'package:hatley_delivery/core/error/failure.dart';
 import 'package:hatley_delivery/data/datasources/get_offer_datasource.dart';
 import 'package:hatley_delivery/data/mappers/offer_mapper.dart';
+import 'package:hatley_delivery/data/mappers/offer_send_mapper.dart';
 import 'package:hatley_delivery/domain/entities/offer_entity.dart';
+import 'package:hatley_delivery/domain/entities/offer_send_entity.dart';
 import 'package:hatley_delivery/domain/repo/offer_repo.dart';
 
 class OfferRepoImpl implements OfferRepo {
@@ -15,6 +17,25 @@ class OfferRepoImpl implements OfferRepo {
       final result = await getOfferDatasource.getOffer(orderId);
       final offerEntity = result.toEntity();
       return Right(offerEntity);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, OfferSendEntity>> sendOffer({
+    required int orderId,
+    required String email,
+    required num value,
+  }) async {
+    try {
+      final result = await getOfferDatasource.sendOffer(
+        orderId: orderId,
+        email: email,
+        value: value,
+      );
+      final offerSendEntity = result.toEntity();
+      return Right(offerSendEntity);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }

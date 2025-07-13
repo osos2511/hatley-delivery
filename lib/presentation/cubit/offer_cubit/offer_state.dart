@@ -1,4 +1,5 @@
 import 'package:hatley_delivery/domain/entities/offer_entity.dart';
+import 'package:hatley_delivery/domain/entities/offer_send_entity.dart';
 
 abstract class OfferState {}
 
@@ -14,4 +15,16 @@ class GetOfferSuccess extends OfferState {
 class OfferFailure extends OfferState {
   final String error;
   OfferFailure(this.error);
+}
+
+class SendOfferLoading extends OfferState {}
+
+class SendOfferSuccess extends OfferState {
+  final OfferSendEntity offerSendEntity;
+  SendOfferSuccess(this.offerSendEntity);
+}
+
+class SendOfferFailure extends OfferState {
+  final String error;
+  SendOfferFailure(this.error);
 }
