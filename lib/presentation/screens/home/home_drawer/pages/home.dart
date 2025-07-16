@@ -19,6 +19,7 @@ import 'about_us.dart';
 import 'our_team.dart';
 import '../../../../cubit/profile_cubit/profile_cubit.dart';
 import '../../../../cubit/profile_cubit/profile_state.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -43,6 +44,76 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> {
   bool _hasCheckedToken = false;
+
+  // SignalR variables
+  late final HubConnection _hubConnection;
+  static const String _serverUrl =
+      "https://hatley.runasp.net/NotifyOfAcceptOrDeclineForDeliveryOffer";
+
+  @override
+  void initState() {
+    super.initState();
+    _startSignalRConnection();
+  }
+
+  Future<void> _startSignalRConnection() async {
+    _hubConnection = HubConnectionBuilder()
+        .withUrl(
+          _serverUrl,
+          options: HttpConnectionOptions(
+            transport: HttpTransportType.WebSockets,
+          ),
+        )
+        .withAutomaticReconnect()
+        .build();
+
+    _hubConnection.onclose(({Exception? error}) {});
+    _hubConnection.onreconnecting(({Exception? error}) {});
+
+    try {
+      await _hubConnection.start();
+      _registerSignalRListeners();
+    } catch (e) {
+      print("Error connecting to SignalR: $e");
+    }
+  }
+
+  void _registerSignalRListeners() {
+    _hubConnection.on("NotifyOfAcceptOrDeclineForDeliveryOffer", (arguments) {
+      print("SignalR arguments: $arguments"); // لطباعة البيانات المستقبلة
+      if (arguments != null && arguments.length >= 7) {
+        final state = arguments[0];
+        final priceOfOffer = arguments[1];
+        final orderId = arguments[2];
+        final userName = arguments[3];
+        final userPhoto = arguments[4];
+        final ordersCount = arguments[5];
+        final check = arguments[6]; // object فيه email و type
+
+        // يمكنك هنا إضافة تصفية حسب check['email'] أو check['type'] إذا أردت
+
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text("Offer Response"),
+            content: Text("User has $state your offer for order $orderId"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _hubConnection.stop();
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
