@@ -197,25 +197,52 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
             ),
             const SizedBox(height: 16),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Price: ",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey.shade700,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      "Order: ",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    Text(
+                      widget.order.orderDescription,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: ColorsManager.primaryColorApp,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  "${widget.order.price} EGP",
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: ColorsManager.primaryColorApp,
-                  ),
+
+                Row(
+                  children: [
+                    Text(
+                      "Price: ",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    Text(
+                      "${widget.order.price} EGP",
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: ColorsManager.primaryColorApp,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
+
             const SizedBox(height: 10),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
