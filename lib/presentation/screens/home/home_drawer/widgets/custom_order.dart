@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hatley_delivery/presentation/cubit/offer_cubit/offer_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/offer_cubit/offer_state.dart';
 import 'package:hatley_delivery/domain/usecases/get_offer_usecase.dart';
@@ -26,6 +25,7 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
   num? localOfferPrice; // متغير السعر المستخدم في البوتوم شيت
 
   void _showOfferDialog(BuildContext context, String? email) {
+    localOfferPrice = widget.order.price; // إعادة تعيين السعر كل مرة
     showModalBottomSheet(
       context: context,
       isScrollControlled: true, // للتحكم في الطول
@@ -48,17 +48,7 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
               }
             },
             builder: (context, state) {
-              if (state is OfferLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: ColorsManager.buttonColorApp,
-                  ),
-                );
-              } else if (state is GetOfferSuccess) {
-                // تهيئة localOfferPrice مرة واحدة فقط
-                if (localOfferPrice == null) {
-                  localOfferPrice = state.offer.price ?? 50;
-                }
+              if (state is GetOfferSuccess) {
                 return StatefulBuilder(
                   builder: (context, setState) {
                     return Column(
@@ -115,7 +105,7 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
                                 listen: false,
                               ).sendOffer(
                                 orderId: widget.order.orderId.toInt(),
-                                value: localOfferPrice ?? 50,
+                                value: localOfferPrice!,
                                 email: email,
                               );
                             } else {
@@ -133,12 +123,6 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
                       ],
                     );
                   },
-                );
-              } else if (state is SendOfferLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: ColorsManager.buttonColorApp,
-                  ),
                 );
               } else if (state is OfferFailure) {
                 return const Center(child: Text("No offer available"));
