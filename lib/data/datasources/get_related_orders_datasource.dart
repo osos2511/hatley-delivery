@@ -18,12 +18,17 @@ class GetRelatedOrdersDataSourceImpl implements GetRelatedOrdersDataSource {
         if (data == null || (data is List && data.isEmpty)) {
           return [];
         }
-        return (data as List).map((e) => RelatedOrdersResponse.fromJson(e)).toList();
+        return (data as List)
+            .map((e) => RelatedOrdersResponse.fromJson(e))
+            .toList();
       } else {
-        throw Exception('Failed to fetch orders with status: ${response.statusCode}');
+        throw Exception(
+          'Failed to fetch orders with status: ${response.statusCode}',
+        );
       }
     } on DioException catch (e) {
-      if (e.response?.statusCode == 400 && e.response?.data == "No Records exist") {
+      if (e.response?.statusCode == 400 &&
+          e.response?.data == "No Records exist") {
         return [];
       }
       throw Exception('Network error: ${e.message}');
