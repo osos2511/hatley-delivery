@@ -5,12 +5,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hatley_delivery/presentation/cubit/auth_cubit/auth_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/navigation_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/profile_cubit/profile_cubit.dart';
+import 'package:hatley_delivery/presentation/cubit/tracking_cubit/tracking_cubit.dart';
 // import 'package:hatley/core/colors_manager.dart';
 // import 'package:hatley/presentation/cubit/feedback_cubit/feedback_cubit.dart';
 // import 'package:hatley/presentation/cubit/auth_cubit/auth_cubit.dart';
 // import 'package:hatley/presentation/cubit/make_orders_cubit/make_orders_cubit.dart';
 // import 'package:hatley/presentation/cubit/navigation_cubit.dart';
-// import 'presentation/cubit/tracking_cubit/tracking_cubit.dart';
 import 'core/colors_manager.dart';
 import 'core/local/token_storage.dart';
 import 'core/routes_manager.dart';
@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (context) => NavigationCubit()),
           //BlocProvider(create: (context) => sl<MakeOrderCubit>()),
           BlocProvider(create: (context) => sl<AuthCubit>()),
-          //BlocProvider(create: (context) => sl<TrackingCubit>()),
+          BlocProvider(create: (context) => sl<TrackingCubit>()),
           //BlocProvider(create: (context) => sl<FeedbackCubit>()),
           BlocProvider(
             create: (context) => ProfileCubit(

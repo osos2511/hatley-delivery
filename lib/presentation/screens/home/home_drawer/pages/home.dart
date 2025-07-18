@@ -5,6 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hatley_delivery/presentation/cubit/order_cubit/getAllOrders_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/order_cubit/order_state.dart';
 import 'package:hatley_delivery/domain/usecases/get_related_orders_usecase.dart';
+import 'package:hatley_delivery/presentation/cubit/tracking_cubit/tracking_cubit.dart';
+import 'package:hatley_delivery/presentation/cubit/tracking_cubit/tracking_state.dart';
+import 'package:hatley_delivery/presentation/screens/auth/widgets/custom_toast.dart';
+import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/all_tracking_orders.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/profile.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/widgets/custom_order.dart';
 import '../../../../../core/colors_manager.dart';
@@ -90,8 +94,6 @@ class _HomeContentState extends State<HomeContent> {
         final ordersCount = arguments[5];
         final check = arguments[6]; // object فيه email و type
 
-        // يمكنك هنا إضافة تصفية حسب check['email'] أو check['type'] إذا أردت
-
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
@@ -158,16 +160,19 @@ class _HomeContentState extends State<HomeContent> {
           },
         ),
 
-        // BlocListener<TrackingCubit, TrackingState>(
-        //   listenWhen: (previous, current) => current is TrackingError,
-        //   listener: (context, state) {
-        //     if (state is TrackingError) {
-        //       WidgetsBinding.instance.addPostFrameCallback((_) {
-        //         CustomToast.show(message: "An error occurred while tracking. Please try again.");
-        //       });
-        //     }
-        //   },
-        // ),
+        BlocListener<TrackingCubit, TrackingState>(
+          listenWhen: (previous, current) => current is TrackingError,
+          listener: (context, state) {
+            if (state is TrackingError) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                CustomToast.show(
+                  message:
+                      "An error occurred while tracking. Please try again.",
+                );
+              });
+            }
+          },
+        ),
       ],
       child: Column(
         children: [
@@ -230,8 +235,7 @@ class _HomeContentState extends State<HomeContent> {
                 builder: (context, state) {
                   switch (state) {
                     case 1:
-                      return const AboutUs();
-                    //return const AllTrackingOrdersScreen();
+                      return const AllTrackingOrdersScreen();
                     case 2:
                       return const OurTeam();
                     //return const ContactUs();

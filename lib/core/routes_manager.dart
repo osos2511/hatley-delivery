@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/all_tracking_orders.dart';
 import '../presentation/screens/auth/forgot_password.dart';
 import '../presentation/screens/auth/verify_otp.dart';
 import '../presentation/screens/auth/reset_password.dart';
@@ -58,15 +59,7 @@ class RoutesManager {
             builder: (context) => Home(),
           );
         }
-      //
-      // case makeOrdersRoute:
-      //   {
-      //     return MaterialPageRoute(builder: (context) => MakeOrders());
-      //   }
-      //
-      // case myOrdersRoute:
-      //   return MaterialPageRoute(builder: (context) => MyOrders());
-      //
+
       // case deliveriesRoute:
       //   {
       //     return MaterialPageRoute(builder: (context) => Deliveries());
@@ -75,12 +68,12 @@ class RoutesManager {
         {
           return MaterialPageRoute(builder: (context) => Profile());
         }
-      // case trakingRoute:
-      //   {
-      //     return MaterialPageRoute(
-      //       builder: (context) => AllTrackingOrdersScreen(),
-      //     );
-      //   }
+      case trakingRoute:
+        {
+          return MaterialPageRoute(
+            builder: (context) => AllTrackingOrdersScreen(),
+          );
+        }
       case changePasswordRoute:
         {
           return MaterialPageRoute(

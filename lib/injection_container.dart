@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hatley_delivery/core/api_manager/api_manager.dart';
 import 'package:hatley_delivery/data/datasources/get_offer_datasource.dart';
 import 'package:hatley_delivery/data/datasources/get_related_orders_datasource.dart';
 import 'package:hatley_delivery/data/repo_impl/offer_repo_impl.dart';
@@ -17,6 +18,7 @@ import 'package:hatley_delivery/presentation/cubit/offer_cubit/offer_cubit.dart'
 import 'package:hatley_delivery/presentation/cubit/profile_cubit/profile_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/register_cubit/register_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/statistics_cubit/statistics_cubit.dart';
+import 'package:hatley_delivery/presentation/cubit/tracking_cubit/tracking_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/zone_cubit/zone_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/local/token_storage.dart';
@@ -143,14 +145,14 @@ Future<void> setupGetIt() async {
   sl.registerFactory(() => StatisticsCubit(sl()));
   sl.registerFactory(() => GetRelatedOrdersCubit(sl()));
   sl.registerFactory(() => OfferCubit(sl(), sl()));
+  sl.registerFactory(() => TrackingCubit(trakingApiManager: sl()));
+  sl.registerLazySingleton<TrakingApiManager>(
+    () => TrakingApiManager(dio: sl()),
+  );
 
   //  sl.registerFactory(() => GetAllOrdersCubit(sl()));
 
   //  sl.registerFactory(() => OfferCubit(sl(), sl()));
-  //  sl.registerFactory(() => TrackingCubit(trakingApiManager: sl()));
-  //  sl.registerLazySingleton<TrakingApiManager>(
-  //    () => TrakingApiManager(dio: sl()),
-  //  );
 
   //  sl.registerFactory(() => DeliveriesCubit(sl()));
   // sl.registerFactory(()=>FeedbackCubit(ratingUsecase: sl(), reviewUsecase: sl()));
