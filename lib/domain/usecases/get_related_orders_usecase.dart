@@ -10,3 +10,11 @@ class GetRelatedOrdersUseCase {
     return orderRepo.getRelatedOrders();
   }
 }
+
+class GetUnrelatedOrdersUseCase {
+  OrderRepo orderRepo;
+  GetUnrelatedOrdersUseCase(this.orderRepo);
+  Future<Either<Failure, List<RelatedOrdersEntity>>> call() {
+    return orderRepo.getUnrelatedOrders();
+  }
+}

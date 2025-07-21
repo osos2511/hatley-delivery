@@ -19,21 +19,24 @@ import '../../../../cubit/auth_cubit/auth_cubit.dart';
 import '../../../../cubit/auth_cubit/auth_state.dart';
 import '../../../../cubit/navigation_cubit.dart';
 import '../widgets/custom_drawer.dart';
-import 'about_us.dart';
 import 'our_team.dart';
 import '../../../../cubit/profile_cubit/profile_cubit.dart';
 import '../../../../cubit/profile_cubit/profile_state.dart';
 import 'package:signalr_netcore/signalr_client.dart';
+import 'package:hatley_delivery/domain/entities/related_orders_entity.dart';
+import 'package:hatley_delivery/core/local/token_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<GetRelatedOrdersCubit>(
-      create: (context) =>
-          GetRelatedOrdersCubit(sl<GetRelatedOrdersUseCase>())
-            ..getRelatedOrders(),
+    return BlocProvider<GetAllOrdersCubit>(
+      create: (context) => GetAllOrdersCubit(
+        sl<GetRelatedOrdersUseCase>(),
+        sl<GetUnrelatedOrdersUseCase>(),
+      )..getAllOrders(),
       child: const HomeContent(),
     );
   }
@@ -48,23 +51,33 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> {
   bool _hasCheckedToken = false;
+  List<RelatedOrdersEntity> _newOrders = []; // قائمة الطلبات الجديدة
 
   // SignalR variables
   late final HubConnection _hubConnection;
   static const String _serverUrl =
       "https://hatley.runasp.net/NotifyOfAcceptOrDeclineForDeliveryOffer";
+  static const String _newOrdersUrl =
+      "https://hatley.runasp.net/NotifyNewOrderForDelivery"; // URL جديد للطلبات الجديدة
+
+  late final TokenStorage _tokenStorage;
 
   @override
   void initState() {
     super.initState();
+
     _startSignalRConnection();
   }
 
   Future<void> _startSignalRConnection() async {
+    final prefs = await SharedPreferences.getInstance();
+    final tokenStorage = TokenStorageImpl(prefs);
+    final token = await tokenStorage.getToken();
     _hubConnection = HubConnectionBuilder()
         .withUrl(
-          _serverUrl,
+          _newOrdersUrl,
           options: HttpConnectionOptions(
+            accessTokenFactory: () async => token ?? '',
             transport: HttpTransportType.WebSockets,
           ),
         )
@@ -76,6 +89,7 @@ class _HomeContentState extends State<HomeContent> {
 
     try {
       await _hubConnection.start();
+      print('SignalR connection started successfully');
       _registerSignalRListeners();
     } catch (e) {
       print("Error connecting to SignalR: $e");
@@ -83,8 +97,9 @@ class _HomeContentState extends State<HomeContent> {
   }
 
   void _registerSignalRListeners() {
+    // Listener للرد على العروض
     _hubConnection.on("NotifyOfAcceptOrDeclineForDeliveryOffer", (arguments) {
-      print("SignalR arguments: $arguments"); // لطباعة البيانات المستقبلة
+      print("SignalR arguments: $arguments");
       if (arguments != null && arguments.length >= 7) {
         final state = arguments[0];
         final priceOfOffer = arguments[1];
@@ -92,7 +107,7 @@ class _HomeContentState extends State<HomeContent> {
         final userName = arguments[3];
         final userPhoto = arguments[4];
         final ordersCount = arguments[5];
-        final check = arguments[6]; // object فيه email و type
+        final check = arguments[6];
 
         showDialog(
           context: context,
@@ -107,6 +122,41 @@ class _HomeContentState extends State<HomeContent> {
             ],
           ),
         );
+      }
+    });
+
+    // Listener جديد للطلبات الجديدة
+    _hubConnection.on("NotifyOrderForDeliveryHup", (arguments) {
+      print("New order received: $arguments");
+      if (arguments != null && arguments.length >= 6) {
+        final orderData = arguments[0] as Map<dynamic, dynamic>; // order object
+        final userName = arguments[1]; // user_Name
+        final userPhoto = arguments[2]; // user_photo
+        final userOrdersCount = arguments[3]; // user_Orders_Count
+        final deliversEmails = arguments[4] as List; // delivers_emails(List)
+        final type = arguments[5]; // type
+
+        // تحويل البيانات إلى RelatedOrdersEntity
+        final newOrder = RelatedOrdersEntity(
+          orderId: orderData['order_id'] ?? 0,
+          orderTime: orderData['order_time'] ?? '',
+          price: orderData['price'] ?? 0,
+          orderDescription: orderData['description'] ?? '',
+          orderZoneFrom: orderData['order_zone_from'] ?? '',
+          orderCityFrom: orderData['order_city_from'] ?? '',
+          detailesAddressFrom: orderData['detailes_address_from'] ?? '',
+          orderZoneTo: orderData['order_zone_to'] ?? '',
+          orderCityTo: orderData['order_city_to'] ?? '',
+          detailesAddressTo: orderData['detailes_address_to'] ?? '',
+        );
+
+        // إضافة الطلب الجديد للقائمة
+        setState(() {
+          _newOrders.insert(0, newOrder); // إضافة في البداية
+        });
+
+        // إظهار إشعار للمستخدم
+        CustomToast.show(message: 'New order received from $userName!');
       }
     });
   }
@@ -252,11 +302,15 @@ class _HomeContentState extends State<HomeContent> {
                     default:
                       return RefreshIndicator(
                         onRefresh: () async {
+                          // مسح الطلبات الجديدة عند التحديث
+                          setState(() {
+                            _newOrders.clear();
+                          });
                           await context
-                              .read<GetRelatedOrdersCubit>()
-                              .getRelatedOrders();
+                              .read<GetAllOrdersCubit>()
+                              .getAllOrders();
                         },
-                        child: BlocBuilder<GetRelatedOrdersCubit, OrderState>(
+                        child: BlocBuilder<GetAllOrdersCubit, OrderState>(
                           builder: (context, state) {
                             if (state is OrderLoading) {
                               return Center(
@@ -265,10 +319,16 @@ class _HomeContentState extends State<HomeContent> {
                                 ),
                               );
                             } else if (state is GetAllOrdersSuccess) {
+                              // دمج الطلبات الجديدة مع الطلبات الموجودة
+                              final allOrders = [
+                                ..._newOrders,
+                                ...state.orders,
+                              ];
+
                               return ListView.builder(
-                                itemCount: state.orders.length,
+                                itemCount: allOrders.length,
                                 itemBuilder: (context, index) {
-                                  final order = state.orders[index];
+                                  final order = allOrders[index];
                                   return CustomOrderWidget(order: order);
                                 },
                               );

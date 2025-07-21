@@ -196,8 +196,8 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -209,17 +209,19 @@ class _CustomOrderWidgetState extends State<CustomOrderWidget> {
                         color: Colors.grey.shade700,
                       ),
                     ),
-                    Text(
-                      widget.order.orderDescription,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: ColorsManager.primaryColorApp,
+                    Expanded(
+                      child: Text(
+                        widget.order.orderDescription,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: ColorsManager.primaryColorApp,
+                        ),
                       ),
                     ),
                   ],
                 ),
-
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     Text(

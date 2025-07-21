@@ -1,29 +1,30 @@
-class RelatedOrdersResponse {
-  RelatedOrdersResponse({
-      this.orderId, 
-      this.orderRate, 
-      this.description, 
-      this.orderGovernorateFrom, 
-      this.orderZoneFrom, 
-      this.orderCityFrom, 
-      this.detailesAddressFrom, 
-      this.orderGovernorateTo, 
-      this.orderZoneTo, 
-      this.orderCityTo, 
-      this.detailesAddressTo, 
-      this.created, 
-      this.orderTime, 
-      this.price, 
-      this.status, 
-      this.userID, 
-      this.deliveryID, 
-      this.name, 
-      this.photo, 
-      this.ordersCount, 
-      this.avgRate, 
-      this.countRate,});
+class OrdersResponse {
+  OrdersResponse({
+    this.orderId,
+    this.orderRate,
+    this.description,
+    this.orderGovernorateFrom,
+    this.orderZoneFrom,
+    this.orderCityFrom,
+    this.detailesAddressFrom,
+    this.orderGovernorateTo,
+    this.orderZoneTo,
+    this.orderCityTo,
+    this.detailesAddressTo,
+    this.created,
+    this.orderTime,
+    this.price,
+    this.status,
+    this.userID,
+    this.deliveryID,
+    this.name,
+    this.photo,
+    this.ordersCount,
+    this.avgRate,
+    this.countRate,
+  });
 
-  RelatedOrdersResponse.fromJson(dynamic json) {
+  OrdersResponse.fromJson(dynamic json) {
     orderId = json['order_id'];
     orderRate = json['order_rate'];
     description = json['description'];
@@ -96,5 +97,4 @@ class RelatedOrdersResponse {
     map['count_rate'] = countRate;
     return map;
   }
-
 }

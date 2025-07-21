@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hatley_delivery/core/api_manager/api_manager.dart';
 import 'package:hatley_delivery/data/datasources/get_offer_datasource.dart';
-import 'package:hatley_delivery/data/datasources/get_related_orders_datasource.dart';
+import 'package:hatley_delivery/data/datasources/get_orders_datasource.dart';
 import 'package:hatley_delivery/data/repo_impl/offer_repo_impl.dart';
 import 'package:hatley_delivery/data/repo_impl/order_repo_impl.dart';
 import 'package:hatley_delivery/domain/repo/offer_repo.dart';
@@ -118,6 +118,7 @@ Future<void> setupGetIt() async {
   sl.registerLazySingleton(() => UpdateprofileUsecase(sl()));
   sl.registerLazySingleton(() => GetallStatisticsUsecase(sl()));
   sl.registerLazySingleton(() => GetRelatedOrdersUseCase(sl()));
+  sl.registerLazySingleton(() => GetUnrelatedOrdersUseCase(sl()));
   sl.registerLazySingleton(() => GetOfferUsecase(sl()));
   sl.registerLazySingleton(() => SendOfferUseCase(sl()));
 
@@ -143,7 +144,12 @@ Future<void> setupGetIt() async {
   );
   sl.registerFactory(() => ChangePassCubit(sl()));
   sl.registerFactory(() => StatisticsCubit(sl()));
-  sl.registerFactory(() => GetRelatedOrdersCubit(sl()));
+  sl.registerFactory(
+    () => GetAllOrdersCubit(
+      sl<GetRelatedOrdersUseCase>(),
+      sl<GetUnrelatedOrdersUseCase>(),
+    ),
+  );
   sl.registerFactory(() => OfferCubit(sl(), sl()));
   sl.registerFactory(() => TrackingCubit(trakingApiManager: sl()));
   sl.registerLazySingleton<TrakingApiManager>(
