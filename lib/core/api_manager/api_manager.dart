@@ -68,4 +68,27 @@ class TrakingApiManager {
       );
     }
   }
+
+  Future<Either<Failure, dynamic>> triggerOrderStatusChange({
+    required int orderId,
+  }) async {
+    try {
+      final response = await dio.get('Traking/$orderId');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return Right(response.data);
+      } else {
+        return Left(
+          ServerFailure(
+            'Failed to change order status: ${response.statusCode}',
+          ),
+        );
+      }
+    } on DioException catch (e) {
+      return Left(NetworkFailure(e.message ?? 'Network error'));
+    } catch (e) {
+      return Left(
+        ServerFailure('An unexpected error occurred: ${e.toString()}'),
+      );
+    }
+  }
 }

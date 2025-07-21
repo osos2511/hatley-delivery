@@ -8,8 +8,8 @@ class TrackingCubit extends Cubit<TrackingState> {
 
   TrackingCubit({required this.trakingApiManager}) : super(TrackingInitial());
 
-  Future<void> getTrackingData([int? orderId]) async {
-    emit(TrackingLoading());
+  Future<void> getTrackingData([int? orderId, bool showLoading = true]) async {
+    if (showLoading) emit(TrackingLoading());
 
     final result = await trakingApiManager.getAllTrackingData();
 
@@ -32,6 +32,21 @@ class TrackingCubit extends Cubit<TrackingState> {
           // لو البيانات مش List<TrakingResponse> أي نوع آخر
           emit(TrackingError(message: 'Unexpected data format'));
         }
+      },
+    );
+  }
+
+  Future<void> changeOrderStatusOnServer({required int orderId}) async {
+    final result = await trakingApiManager.triggerOrderStatusChange(
+      orderId: orderId,
+    );
+    result.fold(
+      (failure) {
+        // يمكنك هنا إظهار Toast أو Snackbar فقط إذا أردت
+      },
+      (success) async {
+        // بعد نجاح التغيير على السيرفر، أعد جلب بيانات التتبع بدون لودنج
+        await getTrackingData(null, false);
       },
     );
   }

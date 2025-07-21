@@ -7,6 +7,7 @@ import 'package:hatley_delivery/data/model/traking_response.dart';
 import 'package:hatley_delivery/presentation/cubit/tracking_cubit/tracking_state.dart';
 import '../../../../cubit/tracking_cubit/tracking_cubit.dart';
 import '../../helper/tracking_order_helper.dart';
+import 'confirm_action_dialog.dart';
 
 class TrackOrderWidget extends StatefulWidget {
   final int? orderId;
@@ -183,19 +184,56 @@ class _TrackOrderWidgetState extends State<TrackOrderWidget> {
                   ),
                   const SizedBox(height: 24),
                   Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorsManager.buttonColorApp,
-                        foregroundColor: Colors.white,
-                        minimumSize: Size(50, 40),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(8),
+                    child: Column(
+                      children: [
+                        // حذف زر Rate
+                        // const SizedBox(height: 12),
+                        Builder(
+                          builder: (context) {
+                            String buttonText;
+                            bool isEnabled = true;
+                            if (relevantOrder.status == -1) {
+                              buttonText = 'Start';
+                            } else if (relevantOrder.status == 0 ||
+                                relevantOrder.status == 1) {
+                              buttonText = 'Next';
+                            } else if (relevantOrder.status == 2) {
+                              buttonText = 'End';
+                            } else {
+                              buttonText = 'Reviews';
+                            }
+                            return ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: ColorsManager.buttonColorApp,
+                                foregroundColor: Colors.white,
+                                minimumSize: Size(50, 40),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () async {
+                                final confirmed = await showConfirmActionDialog(
+                                  context: context,
+                                  title: 'Are you sure?',
+                                  message:
+                                      'Do you want to proceed with this action?',
+                                  confirmText: 'Yes',
+                                  cancelText: 'No',
+                                );
+                                if (confirmed == true) {
+                                  context
+                                      .read<TrackingCubit>()
+                                      .changeOrderStatusOnServer(
+                                        orderId: relevantOrder.orderId,
+                                      );
+                                }
+                              },
+
+                              child: Text(buttonText),
+                            );
+                          },
                         ),
-                      ),
-                      onPressed: (relevantOrder.status == 3)
-                          ? widget.onRatePressed
-                          : null,
-                      child: const Text("Rate"),
+                      ],
                     ),
                   ),
                 ],
