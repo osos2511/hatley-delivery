@@ -63,12 +63,13 @@ class _HomeContentState extends State<HomeContent> {
       "https://hatley.runasp.net/NotifyNewOrderForDelivery"; // URL جديد للطلبات الجديدة
 
   late final TokenStorage _tokenStorage;
+  late final HubConnection _hubConnectionOffers;
 
   @override
   void initState() {
     super.initState();
-
     _startSignalRConnection();
+    _startOfferSignalRConnection();
   }
 
   Future<void> _startSignalRConnection() async {
@@ -95,6 +96,29 @@ class _HomeContentState extends State<HomeContent> {
       _registerSignalRListeners();
     } catch (e) {
       print("Error connecting to SignalR: $e");
+    }
+  }
+
+  Future<void> _startOfferSignalRConnection() async {
+    _hubConnectionOffers = HubConnectionBuilder()
+        .withUrl(
+          _serverUrl,
+          options: HttpConnectionOptions(
+            transport: HttpTransportType.WebSockets,
+          ),
+        )
+        .withAutomaticReconnect()
+        .build();
+
+    _hubConnectionOffers.onclose(({Exception? error}) {});
+    _hubConnectionOffers.onreconnecting(({Exception? error}) {});
+
+    try {
+      await _hubConnectionOffers.start();
+      _registerOfferSignalRListeners();
+      print('Offer SignalR state: ${_hubConnectionOffers.state}');
+    } catch (e) {
+      print("Error connecting to Offer SignalR: $e");
     }
   }
 
@@ -163,9 +187,57 @@ class _HomeContentState extends State<HomeContent> {
     });
   }
 
+  void _registerOfferSignalRListeners() {
+    _hubConnectionOffers.on("NotifyOfAcceptOrDeclineForDeliveryOffer", (
+      arguments,
+    ) {
+      print("SignalR Offer arguments: $arguments");
+      if (arguments != null && arguments.length >= 7) {
+        for (int i = 0; i < arguments.length; i++) {
+          print("Argument $i: ${arguments[i]} (${arguments[i]?.runtimeType})");
+        }
+        final state = arguments[0];
+        final priceOfOffer = arguments[1];
+        final orderId = arguments[2];
+        final userName = arguments[3];
+        final userPhoto = arguments[4];
+        final ordersCount = arguments[5];
+        final check = arguments[6];
+        // احصل على إيميل الدليفري من ProfileCubit
+        final deliveryEmail = context.read<ProfileCubit>().state.profile?.email;
+        final checkEmail = check is Map ? check['email']?.toString() : null;
+        if (checkEmail != null &&
+            deliveryEmail != null &&
+            checkEmail == deliveryEmail) {
+          // Show Snackbar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("User has $state your offer for order $orderId"),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          // غيّر الصفحة عبر NavigationCubit بعد 2 ثانية
+          Future.delayed(const Duration(seconds: 2), () {
+            context.read<NavigationCubit>().changePage(1); // 1 = صفحة التتبع
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              RoutesManager.homeRoute,
+              (route) => false,
+            );
+          });
+        } else {
+          print(
+            "الإشعار لا يخص هذا الدليفري: $checkEmail vs ${deliveryEmail ?? ''}",
+          );
+        }
+      }
+    });
+  }
+
   @override
   void dispose() {
     _hubConnection.stop();
+    _hubConnectionOffers.stop();
     super.dispose();
   }
 
