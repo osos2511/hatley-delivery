@@ -8,7 +8,9 @@ import 'package:hatley_delivery/domain/usecases/get_related_orders_usecase.dart'
 import 'package:hatley_delivery/presentation/cubit/tracking_cubit/tracking_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/tracking_cubit/tracking_state.dart';
 import 'package:hatley_delivery/presentation/screens/auth/widgets/custom_toast.dart';
+import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/about_us.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/all_tracking_orders.dart';
+import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/contact_us.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/profile.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/widgets/custom_order.dart';
 import '../../../../../core/colors_manager.dart';
@@ -253,10 +255,10 @@ class _HomeContentState extends State<HomeContent> {
                         appBarTitle = 'Our Team'; // الكلمة الإنجليزية
                         break;
                       case 5:
-                        appBarTitle = 'My Orders'; // الكلمة الإنجليزية
+                        appBarTitle = 'Previous Orders'; // الكلمة الإنجليزية
                         break;
                       case 6:
-                        appBarTitle = 'Deliveries'; // الكلمة الإنجليزية
+                        appBarTitle = 'Ratings'; // الكلمة الإنجليزية
                         break;
                       case 7:
                         appBarTitle = 'Profile'; // الكلمة الإنجليزية
@@ -287,12 +289,11 @@ class _HomeContentState extends State<HomeContent> {
                     case 1:
                       return const AllTrackingOrdersScreen();
                     case 2:
+                      return const ContactUs();
+                    case 3:
+                      return const AboutUs();
+                    case 4:
                       return const OurTeam();
-                    //return const ContactUs();
-                    // case 3:
-                    //   return const AboutUs();
-                    // case 3:
-                    //   return const OurTeam();
                     // case 5:
                     //   return const MyOrders();
                     // case 6:

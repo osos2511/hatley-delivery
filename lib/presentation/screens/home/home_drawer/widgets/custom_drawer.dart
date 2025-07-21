@@ -100,8 +100,8 @@ class CustomDrawer extends StatelessWidget {
                     context.read<NavigationCubit>().changePage(6);
                     Navigator.pop(context);
                   },
-                  icon: Icons.delivery_dining,
-                  text: 'Deliveries',
+                  icon: Icons.star,
+                  text: 'Ratings',
                 ),
                 CustomListTile(
                   onPress: () {

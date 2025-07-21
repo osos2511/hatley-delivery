@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/about_us.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/all_tracking_orders.dart';
+import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/contact_us.dart';
 import '../presentation/screens/auth/forgot_password.dart';
 import '../presentation/screens/auth/verify_otp.dart';
 import '../presentation/screens/auth/reset_password.dart';
@@ -24,6 +26,8 @@ class RoutesManager {
   static const String profileRoute = '/Profile';
   static const String trakingRoute = '/traking';
   static const String changePasswordRoute = '/ChangePasswordPage';
+  static const String contactUs = '/ContactUs';
+  static const String aboutUs = '/aboutUs';
 
   static Route<dynamic>? router(RouteSettings settings) {
     switch (settings.name) {
@@ -79,6 +83,14 @@ class RoutesManager {
           return MaterialPageRoute(
             builder: (context) => const ChangePasswordPage(),
           );
+        }
+      case contactUs:
+        {
+          return MaterialPageRoute(builder: (context) => ContactUs());
+        }
+      case aboutUs:
+        {
+          return MaterialPageRoute(builder: (context) => AboutUs());
         }
     }
     return null;
