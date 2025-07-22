@@ -11,6 +11,7 @@ import 'package:hatley_delivery/presentation/screens/auth/widgets/custom_toast.d
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/about_us.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/all_tracking_orders.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/contact_us.dart';
+import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/previous_orders.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/pages/profile.dart';
 import 'package:hatley_delivery/presentation/screens/home/home_drawer/widgets/custom_order.dart';
 import '../../../../../core/colors_manager.dart';
@@ -366,8 +367,8 @@ class _HomeContentState extends State<HomeContent> {
                       return const AboutUs();
                     case 4:
                       return const OurTeam();
-                    // case 5:
-                    //   return const MyOrders();
+                    case 5:
+                      return const PreviousOrders();
                     // case 6:
                     //   return Deliveries();
                     case 7:

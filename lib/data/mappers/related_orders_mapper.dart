@@ -1,4 +1,4 @@
-import 'package:hatley_delivery/data/model/RelatedOrdersResponse.dart';
+import 'package:hatley_delivery/data/model/orders_response.dart';
 import 'package:hatley_delivery/domain/entities/related_orders_entity.dart';
 
 extension RelatedOrdersMapper on OrdersResponse {

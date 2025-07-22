@@ -9,9 +9,11 @@ import 'package:hatley_delivery/domain/repo/offer_repo.dart';
 import 'package:hatley_delivery/domain/repo/order_repo.dart';
 import 'package:hatley_delivery/domain/usecases/get_offer_usecase.dart';
 import 'package:hatley_delivery/domain/usecases/get_related_orders_usecase.dart';
+import 'package:hatley_delivery/domain/usecases/previous_orders_usecase.dart';
 import 'package:hatley_delivery/domain/usecases/send_offer_usecase.dart';
 import 'package:hatley_delivery/presentation/cubit/auth_cubit/auth_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/change_pass_cubit/change_pass_cubit.dart';
+import 'package:hatley_delivery/presentation/cubit/deliveries_cubit/deliveries_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/governorate_cubit/governorate_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/order_cubit/getAllOrders_cubit.dart';
 import 'package:hatley_delivery/presentation/cubit/offer_cubit/offer_cubit.dart';
@@ -121,6 +123,7 @@ Future<void> setupGetIt() async {
   sl.registerLazySingleton(() => GetUnrelatedOrdersUseCase(sl()));
   sl.registerLazySingleton(() => GetOfferUsecase(sl()));
   sl.registerLazySingleton(() => SendOfferUseCase(sl()));
+  sl.registerLazySingleton(() => GetPreviousOrdersUseCase(sl()));
 
   // sl.registerLazySingleton(() => GetallordersUseCase(sl()));
   // sl.registerLazySingleton(() => AcceptOfferUseCase(sl()));
@@ -155,6 +158,7 @@ Future<void> setupGetIt() async {
   sl.registerLazySingleton<TrakingApiManager>(
     () => TrakingApiManager(dio: sl()),
   );
+  sl.registerFactory(() => PreviousOrdersCubit(sl()));
 
   //  sl.registerFactory(() => GetAllOrdersCubit(sl()));
 

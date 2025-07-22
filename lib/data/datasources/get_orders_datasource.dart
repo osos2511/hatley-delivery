@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:hatley_delivery/data/model/RelatedOrdersResponse.dart';
+import 'package:hatley_delivery/data/model/orders_response.dart';
 
 abstract class GetRelatedOrdersDataSource {
   Future<List<OrdersResponse>> getAllRelatedOrders();
   Future<List<OrdersResponse>> getAllUnrelatedOrders();
+  Future<List<OrdersResponse>> getAllPreviousOrders();
 }
 
 class GetRelatedOrdersDataSourceImpl implements GetRelatedOrdersDataSource {
@@ -55,6 +56,21 @@ class GetRelatedOrdersDataSourceImpl implements GetRelatedOrdersDataSource {
         return [];
       }
       throw Exception('Network error:  {e.message}');
+    }
+  }
+
+  @override
+  Future<List<OrdersResponse>> getAllPreviousOrders() async {
+    try {
+      final response = await dio.get('Order/Orders');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data.map((item) => OrdersResponse.fromJson(item)).toList();
+      } else {
+        throw Exception('Failed to load Orders');
+      }
+    } catch (e) {
+      throw Exception('Error fetching orders: $e');
     }
   }
 }
